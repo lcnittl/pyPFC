@@ -3,8 +3,9 @@ from __future__ import annotations
 import inspect
 import logging
 import multiprocessing as mp
-import os
+import shlex
 import signal
+import subprocess  # nosec: B404
 import time
 from pathlib import Path
 
@@ -55,10 +56,10 @@ class PwrCtrl(mp.Process):
             self.logger.debug("pulsetime = %s", pulsetime)
             if pulsetime <= 0.30:
                 self.logger.info("Rebooting")
-                # os.system("reboot")
+                subprocess.run(shlex.split("shutdown -r now"))  # nosec: B603
             elif 0.30 < pulsetime:
                 self.logger.info("Shutting down")
-                # os.system("shutdown now -h")
+                subprocess.run(shlex.split("shutdown -P now"))  # nosec: B603
 
 
 class FanCtrl(mp.Process):
