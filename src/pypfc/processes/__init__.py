@@ -77,11 +77,11 @@ class FanCtrl(mp.Process):
 
         self.interval = 30
 
-        self.fanconfig = ["65=100", "60=55", "55=10"]
+        self.temp_fanspeed_map = {55.0: 10, 60.0: 55, 65.0: 100}
         tmpconfig = self._load_config("test.cnf")
         if tmpconfig:
-            self.fanconfig = tmpconfig
-        self.logger.debug("fanconfig = %s", self.fanconfig)
+            self.temp_fanspeed_map = tmpconfig
+        self.logger.debug("temp_fanspeed_map = %s", self.temp_fanspeed_map)
 
     def __del__(self) -> None:
         self.logger.debug("Cleaning up...")
@@ -102,53 +102,47 @@ class FanCtrl(mp.Process):
             time.sleep(self.interval)
 
     def _load_config(self, fname) -> list:
-        newconfig = []
+        temp_fanspeed_map = {}
         try:
             with open(fname, "r") as file:
                 for line in file:
+                    line = line.strip()
                     if not line:
                         continue
-                    tmpline = line.strip()
-                    if not tmpline:
+                    if line.startswith("#"):
                         continue
-                    if tmpline.startswith("#"):
+                    temp_fanspeed_pair = line.split("=")
+                    if len(temp_fanspeed_pair) != 2:
                         continue
-                    tmppair = tmpline.split("=")
-                    if len(tmppair) != 2:
-                        continue
-                    tempval = 0
-                    fanval = 0
                     try:
-                        tempval = float(tmppair[0])
-                        if not 0 <= tempval <= 100:
+                        temp = float(temp_fanspeed_pair[0])
+                        if not 0 <= temp <= 100:
+                            continue
+                        fanspeed = int(float(temp_fanspeed_pair[1]))
+                        if not 0 <= fanspeed <= 100:
                             continue
                     except ValueError:
                         continue
-                    try:
-                        fanval = int(float(tmppair[1]))
-                        if not 0 <= fanval <= 100:
-                            continue
-                    except ValueError:
-                        continue
-                    newconfig.append(f"{tempval:.2f}={fanval:d}")
-            newconfig.sort(reverse=True)
+                    temp_fanspeed_map[temp] = fanspeed
+            # Sorting is not necessary at this point, yet, it is nicer for the
+            # user to check the values
+            temp_fanspeed_map = {
+                key: val for key, val in sorted(temp_fanspeed_map.items())
+            }
         except FileNotFoundError:
             self.logger.warning("No config file found!")
-            return []
-        return newconfig
+        return temp_fanspeed_map
 
     def _get_temp(self) -> float:
         temp = Path("/sys/class/thermal/thermal_zone0/temp").read_text()
         temp = float(temp) * 10 ** (-3)
         return temp
 
-    def _get_fanspeed(self, tempval) -> int:
-        for curconfig in self.fanconfig:
-            curpair = curconfig.split("=")
-            tempcfg = float(curpair[0])
-            fancfg = int(float(curpair[1]))
-            if tempval >= tempcfg:
-                return fancfg
+    def _get_fanspeed(self, temp_current) -> int:
+        for temp in sorted(self.temp_fanspeed_map):
+            if temp_current < temp:
+                continue
+            return self.temp_fanspeed_map[temp]
         return 0
 
     def _set_fan_speed(self, speed) -> None:
