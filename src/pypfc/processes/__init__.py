@@ -33,21 +33,33 @@ class PwrCtrl(mp.Process):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         while True:
-            GPIO.wait_for_edge(self.shutdown_pin, GPIO.RISING)
+            GPIO.wait_for_edge(self.shutdown_pin, GPIO.RISING)  # bouncetime=200
             self.logger.debug("Detected rise on GPIO-pin %s", self.shutdown_pin)
             t_on_press = time.perf_counter()
-            time.sleep(0.2)  # Catch oscillations
+            time.sleep(0.2)  # Debounce
 
-            while GPIO.input(self.shutdown_pin) == GPIO.HIGH:
+            timeout = False
+            while not timeout:
+                if GPIO.input(self.shutdown_pin) == GPIO.LOW:
+                    self.logger.debug("Detected low on GPIO-pin %s", self.shutdown_pin)
+                    break
+                timeout = 5 < time.perf_counter() - t_on_press
                 time.sleep(0.1)
+            else:
+                self.logger.debug(
+                    "Timed out waiting for low on GPIO-pin %s", self.shutdown_pin
+                )
             t_on_release = time.perf_counter()
+            time.sleep(0.2)  # Debounce
 
             pulsetime = t_on_release - t_on_press
             self.logger.debug("pulsetime = %s", pulsetime)
-            if 1 <= pulsetime < 3:
+            if pulsetime < 2:
+                self.logger.info("Button pressed too short, ignoring...")
+            elif 2 <= pulsetime < 4:
                 self.logger.info("Rebooting")
                 # os.system("reboot")
-            elif 3 <= pulsetime:
+            elif 4 <= pulsetime:
                 self.logger.info("Shutting down")
                 # os.system("shutdown now -h")
 
