@@ -93,11 +93,11 @@ class FanCtrl(mp.Process):
 
         speed_prev = -1
         while True:
-            temp = self._get_temp()
+            temp = self._read_temp()
             self.logger.info("Current CPU temp: %.2f °C", temp)
-            speed = self._get_fanspeed(temp)
+            speed = self._temp_to_fanspeed(temp)
             if speed != speed_prev:
-                self._set_fan_speed(speed)
+                self._apply_fanspeed(speed)
             speed_prev = speed
             time.sleep(self.interval)
 
@@ -133,19 +133,19 @@ class FanCtrl(mp.Process):
             self.logger.warning("No config file found!")
         return temp_fanspeed_map
 
-    def _get_temp(self) -> float:
+    def _read_temp(self) -> float:
         temp = Path("/sys/class/thermal/thermal_zone0/temp").read_text()
         temp = float(temp) * 10 ** (-3)
         return temp
 
-    def _get_fanspeed(self, temp_current) -> int:
+    def _temp_to_fanspeed(self, temp_current) -> int:
         for temp in sorted(self.temp_fanspeed_map):
             if temp_current < temp:
                 continue
             return self.temp_fanspeed_map[temp]
         return 0
 
-    def _set_fan_speed(self, speed) -> None:
+    def _apply_fanspeed(self, speed) -> None:
         try:
             self.bus.write_byte(self.address, speed)
             self.logger.info("Set fan to %s %%", speed)
