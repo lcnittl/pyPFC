@@ -33,20 +33,26 @@ class PwrCtrl(mp.Process):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         while True:
-            pulsetime = 1
             GPIO.wait_for_edge(self.shutdown_pin, GPIO.RISING)
             self.logger.debug("Detected rise on GPIO-pin %s", self.shutdown_pin)
-            time.sleep(0.01)
-            while GPIO.input(self.shutdown_pin) == GPIO.HIGH:
-                self.logger.debug("GPIO-pin %s is high", self.shutdown_pin)
-                pulsetime += 1
-                self.logger.debug("pulsetime = %s", pulsetime)
-                time.sleep(0.01)
+            t_on_press = time.perf_counter()
+            time.sleep(0.2)  # Catch oscillations
+
+            channel = GPIO.wait_for_edge(self.shutdown_pin, GPIO.FALLING, timeout=5000)
+            if channel is None:
+                self.logger.debug(
+                    "Timeout waiting for fall on GPIO-pin %s", self.shutdown_pin
+                )
+            self.logger.debug("Detected fall on GPIO-pin %s", self.shutdown_pin)
+            t_on_release = time.perf_counter()
+            time.sleep(0.2)  # Catch oscillations
+
+            pulsetime = t_on_release - t_on_press
             self.logger.debug("pulsetime = %s", pulsetime)
-            if 2 <= pulsetime <= 3:
+            if 1 <= pulsetime < 3:
                 self.logger.info("Rebooting")
                 # os.system("reboot")
-            elif 4 <= pulsetime <= 5:
+            elif 3 <= pulsetime:
                 self.logger.info("Shutting down")
                 # os.system("shutdown now -h")
 
