@@ -8,12 +8,27 @@ from pathlib import Path
 
 from processes import FanCtrl, PwrCtrl
 
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata
+
+try:
+    __version__ = metadata.version("pypfc")
+except metadata.PackageNotFoundError:
+    __version__ = None
+
 logger = logging.getLogger(__name__)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=str(__version__),
     )
     parser.add_argument(
         "-v",
