@@ -32,9 +32,9 @@ class PwrCtrl(mp.Process):
     def run(self) -> int:
         """Function that waits for actuation of the fan hat's power button
 
-        It seems that the argon fan hat sends two pulses with an interval depending on
-        single (40 ms) or double press (20 ms). The interval is detected in the inner
-        while loop.
+        It seems that the argon fan hat sends a pulse with a duration depending on
+        single (~40 ms) or double press (~20 ms). The pulse duration is detected in the
+        inner while loop.
 
         Single long press triggers system poweroff.
         Double short press triggers system reboot.
@@ -45,19 +45,19 @@ class PwrCtrl(mp.Process):
         while True:
             GPIO.wait_for_edge(self.shutdown_pin, GPIO.RISING)
 
-            t_pulse_1 = time.perf_counter()
+            t_pulse_0 = time.perf_counter()
             self.logger.debug("Detected rise on GPIO-pin %s", self.shutdown_pin)
             while GPIO.input(self.shutdown_pin) == GPIO.HIGH:
                 time.sleep(0.01)
-            t_pulse_2 = time.perf_counter()
+            t_pulse_1 = time.perf_counter()
             self.logger.debug("Detected low on GPIO-pin %s", self.shutdown_pin)
 
-            pulsetime = t_pulse_2 - t_pulse_1
-            self.logger.debug("pulsetime = %s", pulsetime)
-            if pulsetime <= 0.30:
+            pulse_duration = t_pulse_1 - t_pulse_0
+            self.logger.debug("pulse duration = %s", pulse_duration)
+            if pulse_duration <= 0.30:
                 self.logger.info("Rebooting")
                 subprocess.run(shlex.split("shutdown -r now"))  # nosec: B603
-            elif 0.30 < pulsetime:
+            elif 0.30 < pulse_duration:
                 self.logger.info("Shutting down")
                 subprocess.run(shlex.split("shutdown -P now"))  # nosec: B603
 
