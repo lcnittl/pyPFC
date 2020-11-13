@@ -3,6 +3,6 @@ from __future__ import annotations
 
 import sys
 
-from pypfc import main
+from . import main
 
 sys.exit(main())

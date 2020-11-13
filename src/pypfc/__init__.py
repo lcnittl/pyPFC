@@ -8,7 +8,7 @@ import signal
 import sys
 from pathlib import Path
 
-from processes import FanCtrl, PwrCtrl
+from .processes import FanCtrl, PwrCtrl
 
 try:
     from importlib import metadata
