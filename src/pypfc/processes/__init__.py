@@ -25,6 +25,7 @@ class PwrCtrl(mp.Process):
         self.shutdown_pin = 4
         GPIO.setup(self.shutdown_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
+        self.pulse_interval = 0.01
         self.pulse_duration_thld = 0.30
 
     def __del__(self) -> None:
@@ -50,7 +51,7 @@ class PwrCtrl(mp.Process):
             t_pulse_0 = time.perf_counter()
             self.logger.debug("Detected rise on GPIO-pin %s", self.shutdown_pin)
             while GPIO.input(self.shutdown_pin) == GPIO.HIGH:
-                time.sleep(0.01)
+                time.sleep(self.pulse_interval)
             t_pulse_1 = time.perf_counter()
             self.logger.debug("Detected low on GPIO-pin %s", self.shutdown_pin)
 
