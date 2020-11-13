@@ -25,6 +25,8 @@ class PwrCtrl(mp.Process):
         self.shutdown_pin = 4
         GPIO.setup(self.shutdown_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
+        self.pulse_duration_thld = 0.30
+
     def __del__(self) -> None:
         self.logger.info("Cleaning up...")
         GPIO.cleanup()
@@ -54,10 +56,10 @@ class PwrCtrl(mp.Process):
 
             pulse_duration = t_pulse_1 - t_pulse_0
             self.logger.debug("pulse duration = %s", pulse_duration)
-            if pulse_duration <= 0.30:
+            if pulse_duration <= self.pulse_duration_thld:
                 self.logger.info("Rebooting")
                 subprocess.run(shlex.split("shutdown -r now"))  # nosec: B603
-            elif 0.30 < pulse_duration:
+            elif self.pulse_duration_thld < pulse_duration:
                 self.logger.info("Shutting down")
                 subprocess.run(shlex.split("shutdown -P now"))  # nosec: B603
 
