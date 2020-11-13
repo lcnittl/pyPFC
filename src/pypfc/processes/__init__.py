@@ -120,13 +120,13 @@ class FanCtrl(mp.Process):
                     fanval = 0
                     try:
                         tempval = float(tmppair[0])
-                        if tempval < 0 or tempval > 100:
+                        if not 0 <= tempval <= 100:
                             continue
                     except ValueError:
                         continue
                     try:
                         fanval = int(float(tmppair[1]))
-                        if fanval < 0 or fanval > 100:
+                        if not 0 <= fanval <= 100:
                             continue
                     except ValueError:
                         continue
