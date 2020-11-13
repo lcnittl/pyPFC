@@ -38,14 +38,9 @@ class PwrCtrl(mp.Process):
             t_on_press = time.perf_counter()
             time.sleep(0.2)  # Catch oscillations
 
-            channel = GPIO.wait_for_edge(self.shutdown_pin, GPIO.FALLING, timeout=5000)
-            if channel is None:
-                self.logger.debug(
-                    "Timeout waiting for fall on GPIO-pin %s", self.shutdown_pin
-                )
-            self.logger.debug("Detected fall on GPIO-pin %s", self.shutdown_pin)
+            while GPIO.input(self.shutdown_pin) == GPIO.HIGH:
+                time.sleep(0.1)
             t_on_release = time.perf_counter()
-            time.sleep(0.2)  # Catch oscillations
 
             pulsetime = t_on_release - t_on_press
             self.logger.debug("pulsetime = %s", pulsetime)
