@@ -6,7 +6,7 @@ import logging
 import logging.handlers
 from pathlib import Path
 
-from .processes import FanCtrl, PwrCtrl
+from processes import FanCtrl, PwrCtrl
 
 logger = logging.getLogger(__name__)
 
