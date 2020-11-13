@@ -13,7 +13,7 @@ This packages can be used to control an Argon Fan HAT for Raspberry Pi on ubuntu
 Installable with `pip` or [`pipx`][pipx] (recommended).
 
 ```cmd
-pipx install git+https://github.com/lcnittl/DMFO.git
+pipx install git+https://github.com/lcnittl/pyPFC.git
 ```
 
 **Note:** Adding [PyPI][pypi] support is planned.
