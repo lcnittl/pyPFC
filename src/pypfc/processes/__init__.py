@@ -29,37 +29,31 @@ class PwrCtrl(mp.Process):
         GPIO.cleanup()
 
     def run(self) -> int:
+        """Function that waits for actuation of the fan hat's power button
+
+        It seems that the argon fan hat sends two pulses with an interval depending on
+        single (40 ms) or double press (20 ms). The interval is detected in the inner
+        while loop.
+
+        Single long press triggers system poweroff.
+        Double short press triggers system reboot.
+        """
         self.logger.debug("Ignoring '[Ctrl] + C'...")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         while True:
-            GPIO.wait_for_edge(self.shutdown_pin, GPIO.RISING)  # bouncetime=200
+            pulsetime = 0
+            GPIO.wait_for_edge(self.shutdown_pin, GPIO.RISING)
             self.logger.debug("Detected rise on GPIO-pin %s", self.shutdown_pin)
-            t_on_press = time.perf_counter()
-            time.sleep(0.2)  # Debounce
-
-            timeout = False
-            while not timeout:
-                if GPIO.input(self.shutdown_pin) == GPIO.LOW:
-                    self.logger.debug("Detected low on GPIO-pin %s", self.shutdown_pin)
-                    break
-                timeout = 5 < time.perf_counter() - t_on_press
-                time.sleep(0.1)
-            else:
-                self.logger.debug(
-                    "Timed out waiting for low on GPIO-pin %s", self.shutdown_pin
-                )
-            t_on_release = time.perf_counter()
-            time.sleep(0.2)  # Debounce
-
-            pulsetime = t_on_release - t_on_press
+            while GPIO.input(self.shutdown_pin) == GPIO.HIGH:
+                time.sleep(0.02)
+                pulsetime += 1
+            self.logger.debug("Detected low on GPIO-pin %s", self.shutdown_pin)
             self.logger.debug("pulsetime = %s", pulsetime)
-            if pulsetime < 2:
-                self.logger.info("Button pressed too short, ignoring...")
-            elif 2 <= pulsetime < 4:
+            if pulsetime == 1:
                 self.logger.info("Rebooting")
                 # os.system("reboot")
-            elif 4 <= pulsetime:
+            elif pulsetime == 2:
                 self.logger.info("Shutting down")
                 # os.system("shutdown now -h")
 
