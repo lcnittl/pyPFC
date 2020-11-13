@@ -4,7 +4,7 @@
 [![Code style: black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/psf/black)
 [![Code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-This packages can be used to control an Argon Fan HAT.
+This packages can be used to control an Argon Fan HAT for Raspberry Pi on ubuntu 20.04.
 
 ## Usage
 
