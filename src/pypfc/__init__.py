@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse
 import logging
 import logging.handlers
+import signal
+import sys
 from pathlib import Path
 
 from processes import FanCtrl, PwrCtrl
@@ -14,14 +16,14 @@ except ImportError:
     import importlib_metadata as metadata
 
 try:
-    __version__ = metadata.version("pypfc")
+    __version__ = metadata.version("pyPFC")
 except metadata.PackageNotFoundError:
     __version__ = None
 
 logger = logging.getLogger(__name__)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
@@ -90,11 +92,16 @@ def setup_root_logger() -> logging.Logger:
     return logger
 
 
-if __name__ == "__main__":
-    args = parse_args()
+args = parse_args()
 
-    log_file = f"{Path(__file__).stem}.log"
-    root_logger = setup_root_logger()
+log_file = f"{Path(__file__).stem}.log"
+root_logger = setup_root_logger()
+
+
+def main(args=None) -> int:
+    """The main routine."""
+    if args is None:
+        args = sys.argv[1:]
 
     processes = {
         "fan_ctrl": FanCtrl(),
@@ -108,5 +115,10 @@ if __name__ == "__main__":
             processes[process].join()
     except KeyboardInterrupt:
         logger.info("KeyboardInterrupt")
+        return 128 + signal.SIGINT
     finally:
         pass
+
+
+if __name__ == "__main__":
+    sys.exit(main())
