@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import logging
 import logging.handlers
-import os
+from pathlib import Path
 
 from .processes import FanCtrl, PwrCtrl
 
@@ -78,7 +78,7 @@ def setup_root_logger() -> logging.Logger:
 if __name__ == "__main__":
     args = parse_args()
 
-    log_file = f"{os.path.splitext(os.path.basename(__file__))[0]}.log"
+    log_file = f"{Path(__file__).stem}.log"
     root_logger = setup_root_logger()
 
     processes = {
