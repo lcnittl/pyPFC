@@ -42,18 +42,21 @@ class PwrCtrl(mp.Process):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         while True:
-            pulsetime = 0
             GPIO.wait_for_edge(self.shutdown_pin, GPIO.RISING)
+
+            t_pulse_1 = time.perf_counter()
             self.logger.debug("Detected rise on GPIO-pin %s", self.shutdown_pin)
             while GPIO.input(self.shutdown_pin) == GPIO.HIGH:
-                time.sleep(0.02)
-                pulsetime += 1
+                time.sleep(0.01)
+            t_pulse_2 = time.perf_counter()
             self.logger.debug("Detected low on GPIO-pin %s", self.shutdown_pin)
+
+            pulsetime = t_pulse_2 - t_pulse_1
             self.logger.debug("pulsetime = %s", pulsetime)
-            if pulsetime == 1:
+            if pulsetime <= 0.30:
                 self.logger.info("Rebooting")
                 # os.system("reboot")
-            elif pulsetime == 2:
+            elif 0.30 < pulsetime:
                 self.logger.info("Shutting down")
                 # os.system("shutdown now -h")
 
