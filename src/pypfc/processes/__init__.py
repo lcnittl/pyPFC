@@ -15,7 +15,7 @@ import smbus2 as smbus
 class PwrCtrl(mp.Process):
     logger = logging.getLogger(f"{__name__}.{inspect.currentframe().f_code.co_name}")
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.daemon = True
 
@@ -24,11 +24,11 @@ class PwrCtrl(mp.Process):
         self.shutdown_pin = 4
         GPIO.setup(self.shutdown_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.logger.info("Cleaning up...")
         GPIO.cleanup()
 
-    def run(self):
+    def run(self) -> int:
         self.logger.debug("Ignoring '[Ctrl] + C'...")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
