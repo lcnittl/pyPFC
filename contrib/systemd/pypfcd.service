@@ -1,0 +1,12 @@
+[Unit]
+Description=pyPFC Daemon (Power and Fan Control)
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+RemainAfterExit=true
+ExecStart=/root/.local/bin/pypfc
+
+[Install]
+WantedBy=multi-user.target
