@@ -103,12 +103,23 @@ def main(args=None) -> int:
     if args is None:
         args = sys.argv[1:]
 
+    class SigGuard:
+        def __init__(self) -> None:
+            signal.signal(signal.SIGTERM, self.terminate)
+
+        def terminate(self, sig_num, stack_frame) -> None:
+            logger.info("Received SIGTERM...")
+            for process in processes:
+                processes[process].terminate()
+
     processes = {
         "fan_ctrl": FanCtrl(),
         "pwr_ctrl": PwrCtrl(),
     }
     for process in processes:
         processes[process].start()
+
+    SigGuard()
 
     try:
         for process in processes:
