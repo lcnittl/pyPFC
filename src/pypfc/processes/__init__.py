@@ -28,10 +28,6 @@ class PwrCtrl(mp.Process):
         self.pulse_interval = 0.01
         self.pulse_duration_thld = 0.30
 
-    def __del__(self) -> None:
-        self.logger.info("Cleaning up...")
-        GPIO.cleanup()
-
     def run(self) -> int:
         """Function that waits for actuation of the fan hat's power button
 
@@ -64,6 +60,12 @@ class PwrCtrl(mp.Process):
                 self.logger.info("Shutting down")
                 subprocess.run(shlex.split("shutdown -P now"))  # nosec: B603
 
+    def terminate(self) -> None:
+        self.logger.info("Terminating...")
+        GPIO.cleanup()
+
+        super().terminate()
+
 
 class FanCtrl(mp.Process):
     logger = logging.getLogger(f"{__name__}.{inspect.currentframe().f_code.co_name}")
@@ -83,13 +85,6 @@ class FanCtrl(mp.Process):
             self.temp_fanspeed_map = tmpconfig
         self.logger.debug("temp_fanspeed_map = %s", self.temp_fanspeed_map)
 
-    def __del__(self) -> None:
-        self.logger.debug("Cleaning up...")
-
-        self._apply_fanspeed(0)
-
-        self.bus.close()
-
     def run(self) -> int:
         self.logger.debug("Ignoring '[Ctrl] + C'...")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -103,6 +98,14 @@ class FanCtrl(mp.Process):
                 self._apply_fanspeed(speed)
             speed_prev = speed
             time.sleep(self.interval)
+
+    def terminate(self) -> None:
+        self.logger.debug("Terminating...")
+
+        self._apply_fanspeed(0)
+        self.bus.close()
+
+        super().terminate()
 
     def _load_config(self, fname) -> list:
         temp_fanspeed_map = {}
