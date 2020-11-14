@@ -85,6 +85,9 @@ class FanCtrl(mp.Process):
 
     def __del__(self) -> None:
         self.logger.debug("Cleaning up...")
+
+        self._apply_fanspeed(0)
+
         self.bus.close()
 
     def run(self) -> int:
