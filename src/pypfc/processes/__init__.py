@@ -26,7 +26,7 @@ class PwrCtrl(mp.Process):
         GPIO.setup(self.shutdown_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
         self.pulse_interval = 0.01
-        self.pulse_duration_thld = 0.30
+        self.pulse_duration_thld = 0.030
 
     def run(self) -> int:
         """Function that waits for actuation of the fan hat's power button
