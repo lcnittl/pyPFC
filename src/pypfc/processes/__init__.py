@@ -46,10 +46,10 @@ class PwrCtrl(mp.Process):
 
             t_pulse_0 = time.perf_counter()
             self.logger.debug("Detected rise on GPIO-pin %s", self.shutdown_pin)
-            while GPIO.input(self.shutdown_pin) == GPIO.HIGH:
-                time.sleep(self.pulse_interval)
+            GPIO.wait_for_edge(self.shutdown_pin, GPIO.FALLING)
+
             t_pulse_1 = time.perf_counter()
-            self.logger.debug("Detected low on GPIO-pin %s", self.shutdown_pin)
+            self.logger.debug("Detected fall on GPIO-pin %s", self.shutdown_pin)
 
             pulse_duration = t_pulse_1 - t_pulse_0
             self.logger.debug("pulse duration = %s", pulse_duration)
