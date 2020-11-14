@@ -61,10 +61,20 @@ class PwrCtrl(mp.Process):
                 subprocess.run(shlex.split("shutdown -P now"))  # nosec: B603
 
     def terminate(self) -> None:
-        self.logger.info("Terminating...")
-        GPIO.cleanup()
+        self.logger.debug("Terminating...")
+        self._cleanup()
 
         super().terminate()
+
+    def kill(self) -> None:
+        self.logger.debug("Killing...")
+        self._cleanup()
+
+        super().terminate()
+
+    def _cleanup(self) -> None:
+        self.logger.info("Cleaning up...")
+        GPIO.cleanup()
 
 
 class FanCtrl(mp.Process):
@@ -101,11 +111,20 @@ class FanCtrl(mp.Process):
 
     def terminate(self) -> None:
         self.logger.debug("Terminating...")
-
-        self._apply_fanspeed(0)
-        self.bus.close()
+        self._cleanup()
 
         super().terminate()
+
+    def kill(self) -> None:
+        self.logger.debug("Killing...")
+        self._cleanup()
+
+        super().terminate()
+
+    def _cleanup(self) -> None:
+        self.logger.debug("Cleaning up...")
+        self._apply_fanspeed(0)
+        self.bus.close()
 
     def _load_config(self, fname) -> list:
         temp_fanspeed_map = {}
