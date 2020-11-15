@@ -99,6 +99,10 @@ class FanCtrl(mp.Process):
         self.logger.debug("Ignoring SIGINT...")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
+        self.logger.debug("Testing fan...")
+        self._apply_fanspeed(100)
+        time.sleep(8)
+
         speed_prev = -1
         while True:
             temp = self._read_temp()
