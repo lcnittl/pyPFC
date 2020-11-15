@@ -187,4 +187,4 @@ class FanCtrl(mp.Process):
             self.bus.write_byte(self.address, speed)
             self.logger.info("Set fan to %s %%", speed)
         except OSError:
-            self.logger.error("Failed to set fan to %s %", speed)
+            self.logger.error("Failed to set fan to %s %%", speed)
