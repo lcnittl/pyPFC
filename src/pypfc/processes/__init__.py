@@ -89,6 +89,7 @@ class FanCtrl(mp.Process):
 
         self.interval = 30
 
+        self.fan_tests = [(25, 1), (50, 1), (75, 1), (100, 4), (50, 1)]
         self.temp_fanspeed_map = {55.0: 10, 60.0: 55, 65.0: 100}
         tmpconfig = self._load_config("test.cnf")
         if tmpconfig:
@@ -99,7 +100,7 @@ class FanCtrl(mp.Process):
         self.logger.debug("Ignoring SIGINT...")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        self._test_fan()
+        self._run_fan_test(self.fan_tests)
 
         speed_prev = -1
         while True:
@@ -160,11 +161,11 @@ class FanCtrl(mp.Process):
             self.logger.warning("No config file found!")
         return temp_fanspeed_map
 
-    def _test_fan(self) -> None:
+    def _run_fan_test(self, tests: tuple) -> None:
         self.logger.debug("Testing fan...")
-        self._apply_fanspeed(100)
-        time.sleep(4)
-        self._apply_fanspeed(0)
+        for test in tests:
+            self._apply_fanspeed(test[0])
+            time.sleep(test[1])
 
     def _read_temp(self) -> float:
         temp = Path("/sys/class/thermal/thermal_zone0/temp").read_text()
