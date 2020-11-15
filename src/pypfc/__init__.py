@@ -8,6 +8,7 @@ import signal
 import sys
 from importlib import metadata
 from pathlib import Path
+from typing import Any
 
 from .processes import FanCtrl, PwrCtrl
 
@@ -51,7 +52,7 @@ def setup_root_logger() -> logging.Logger:
     logger = logging.getLogger()
     logger.setLevel(logging.NOTSET)
 
-    module_loglevel_map = {}
+    module_loglevel_map: dict[str, Any[int, str]] = {}
     for module, loglevel in module_loglevel_map.items():
         logging.getLogger(module).setLevel(loglevel)
 
@@ -104,7 +105,7 @@ def main(args: list = None) -> int:
             self.sigint_orig = signal.signal(signal.SIGINT, self._terminate)
             self.sigterm_orig = signal.signal(signal.SIGTERM, self._terminate)
 
-        def __enter__(self) -> type:
+        def __enter__(self) -> SigGuard:
             return self
 
         def __exit__(self, *args, **kwargs) -> None:

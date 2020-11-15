@@ -8,6 +8,7 @@ import signal
 import subprocess  # nosec: B404
 import time
 from pathlib import Path
+from typing import Optional
 
 import RPi.GPIO as GPIO  # noqa: N814
 import smbus2 as smbus
@@ -161,7 +162,7 @@ class FanCtrl(mp.Process):
             self.logger.warning("No config file found!")
         return temp_fanspeed_map
 
-    def _run_fan_test(self, tests: list[tuple] = None) -> None:
+    def _run_fan_test(self, tests: Optional[list[tuple[int, float]]] = None) -> None:
         self.logger.info("Testing fan...")
         if not tests:
             self.logger.info("No tests defined")
