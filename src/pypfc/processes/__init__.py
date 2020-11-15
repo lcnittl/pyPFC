@@ -130,7 +130,7 @@ class FanCtrl(mp.Process):
         self._apply_fanspeed(0)
         self.bus.close()
 
-    def _load_config(self, fname) -> list:
+    def _load_config(self, fname) -> dict:
         temp_fanspeed_map = {}
         try:
             with open(fname, "r") as file:
