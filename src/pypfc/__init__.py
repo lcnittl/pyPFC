@@ -105,10 +105,18 @@ def main(args=None) -> int:
 
     class SigGuard:
         def __init__(self) -> None:
-            signal.signal(signal.SIGTERM, self.terminate)
+            self.sigint_orig = signal.signal(signal.SIGINT, self._terminate)
+            self.sigterm_orig = signal.signal(signal.SIGTERM, self._terminate)
 
-        def terminate(self, sig_num, stack_frame) -> None:
-            logger.info("Received SIGTERM...")
+        def __enter__(self) -> type:
+            return self
+
+        def __exit__(self, *args, **kwargs) -> None:
+            signal.signal(signal.SIGINT, self.sigint_orig)
+            signal.signal(signal.SIGTERM, self.sigterm_orig)
+
+        def _terminate(self, sig_num, stack_frame) -> None:
+            logger.info("Received %s...", signal.Signals(sig_num).name)
             for process in processes:
                 processes[process].terminate()
 
@@ -119,16 +127,9 @@ def main(args=None) -> int:
     for process in processes:
         processes[process].start()
 
-    SigGuard()
-
-    try:
+    with SigGuard():
         for process in processes:
             processes[process].join()
-    except KeyboardInterrupt:
-        logger.info("KeyboardInterrupt")
-        return 128 + signal.SIGINT
-    finally:
-        pass
 
 
 if __name__ == "__main__":
