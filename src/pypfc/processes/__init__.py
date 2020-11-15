@@ -132,7 +132,7 @@ class FanCtrl(mp.Process):
     def _load_config(self, fname: str) -> dict:
         temp_fanspeed_map = {}
         try:
-            with open(fname, "r") as file:
+            with open(fname) as file:
                 for line in file:
                     line = line.strip()
                     if not line:
@@ -186,5 +186,5 @@ class FanCtrl(mp.Process):
         try:
             self.bus.write_byte(self.address, speed)
             self.logger.info("Set fan to %s %%", speed)
-        except IOError:
+        except OSError:
             self.logger.error("Failed to set fan to %s %", speed)
