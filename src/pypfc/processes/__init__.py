@@ -91,9 +91,9 @@ class FanCtrl(mp.Process):
 
         self.fan_tests = [(25, 1), (50, 1), (75, 1), (100, 2), (5, 2)]
         self.temp_fanspeed_map = {55.0: 10, 60.0: 55, 65.0: 100}
-        tmpconfig = self._load_config("test.cnf")
-        if tmpconfig:
-            self.temp_fanspeed_map = tmpconfig
+        temp_fanspeed_map = self._load_config("test.cnf")
+        if temp_fanspeed_map:
+            self.temp_fanspeed_map = temp_fanspeed_map
         self.logger.debug("temp_fanspeed_map = %s", self.temp_fanspeed_map)
 
     def run(self) -> int:
