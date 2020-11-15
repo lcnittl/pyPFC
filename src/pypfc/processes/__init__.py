@@ -38,7 +38,7 @@ class PwrCtrl(mp.Process):
         Single long press triggers system poweroff.
         Double short press triggers system reboot.
         """
-        self.logger.debug("Ignoring '[Ctrl] + C'...")
+        self.logger.debug("Ignoring SIGINT...")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         while True:
@@ -96,7 +96,7 @@ class FanCtrl(mp.Process):
         self.logger.debug("temp_fanspeed_map = %s", self.temp_fanspeed_map)
 
     def run(self) -> int:
-        self.logger.debug("Ignoring '[Ctrl] + C'...")
+        self.logger.debug("Ignoring SIGINT...")
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         speed_prev = -1
