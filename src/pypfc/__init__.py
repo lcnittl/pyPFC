@@ -6,14 +6,10 @@ import logging
 import logging.handlers
 import signal
 import sys
+from importlib import metadata
 from pathlib import Path
 
 from .processes import FanCtrl, PwrCtrl
-
-try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata
 
 try:
     __version__ = metadata.version("pyPFC")
