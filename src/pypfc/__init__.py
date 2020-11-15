@@ -98,7 +98,7 @@ log_file = f"{Path(__file__).stem}.log"
 root_logger = setup_root_logger()
 
 
-def main(args=None) -> int:
+def main(args: list = None) -> int:
     """The main routine."""
     if args is None:
         args = sys.argv[1:]

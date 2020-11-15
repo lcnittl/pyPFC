@@ -129,7 +129,7 @@ class FanCtrl(mp.Process):
         self._apply_fanspeed(0)
         self.bus.close()
 
-    def _load_config(self, fname) -> dict:
+    def _load_config(self, fname: str) -> dict:
         temp_fanspeed_map = {}
         try:
             with open(fname, "r") as file:
@@ -161,8 +161,11 @@ class FanCtrl(mp.Process):
             self.logger.warning("No config file found!")
         return temp_fanspeed_map
 
-    def _run_fan_test(self, tests: tuple) -> None:
-        self.logger.debug("Testing fan...")
+    def _run_fan_test(self, tests: list[tuple] = None) -> None:
+        self.logger.info("Testing fan...")
+        if not tests:
+            self.logger.info("No tests defined")
+            return
         for test in tests:
             self._apply_fanspeed(test[0])
             time.sleep(test[1])
@@ -172,14 +175,14 @@ class FanCtrl(mp.Process):
         temp = float(temp) * 10 ** (-3)
         return temp
 
-    def _temp_to_fanspeed(self, temp_current) -> int:
+    def _temp_to_fanspeed(self, temp_current: float) -> int:
         for temp in sorted(self.temp_fanspeed_map):
             if temp_current < temp:
                 continue
             return self.temp_fanspeed_map[temp]
         return 0
 
-    def _apply_fanspeed(self, speed) -> None:
+    def _apply_fanspeed(self, speed: int) -> None:
         try:
             self.bus.write_byte(self.address, speed)
             self.logger.info("Set fan to %s %%", speed)
