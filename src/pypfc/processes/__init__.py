@@ -89,7 +89,7 @@ class FanCtrl(mp.Process):
 
         self.interval = 30
 
-        self.fan_tests = [(25, 1), (50, 1), (75, 1), (100, 4), (50, 1)]
+        self.fan_tests = [(25, 1), (50, 1), (75, 1), (100, 2), (5, 2)]
         self.temp_fanspeed_map = {55.0: 10, 60.0: 55, 65.0: 100}
         tmpconfig = self._load_config("test.cnf")
         if tmpconfig:
