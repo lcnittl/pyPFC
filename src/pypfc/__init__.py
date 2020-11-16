@@ -32,7 +32,7 @@ def parse_args() -> argparse.Namespace:
         "-v",
         "--verbosity",
         choices=list(logging._nameToLevel.keys()),
-        default="WARNING",
+        default="INFO",
         type=str.upper,
         help="Main log - Console log level",
     )
@@ -40,7 +40,7 @@ def parse_args() -> argparse.Namespace:
         "-l",
         "--log",
         choices=list(logging._nameToLevel.keys()),
-        default="WARNING",
+        default="INFO",
         type=str.upper,
         help="Main log - File log level",
     )

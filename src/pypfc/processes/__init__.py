@@ -74,7 +74,7 @@ class PwrCtrl(mp.Process):
         super().terminate()
 
     def _cleanup(self) -> None:
-        self.logger.info("Cleaning up...")
+        self.logger.debug("Cleaning up...")
         GPIO.cleanup()
 
 
@@ -106,7 +106,7 @@ class FanCtrl(mp.Process):
         speed_prev = -1
         while True:
             temp = self._read_temp()
-            self.logger.info("Current CPU temp: %.2f °C", temp)
+            self.logger.debug("Current CPU temp: %.2f °C", temp)
             speed = self._temp_to_fanspeed(temp)
             if speed != speed_prev:
                 self._apply_fanspeed(speed)
@@ -163,9 +163,9 @@ class FanCtrl(mp.Process):
         return temp_fanspeed_map
 
     def _run_fan_test(self, tests: Optional[list[tuple[int, float]]] = None) -> None:
-        self.logger.info("Testing fan...")
+        self.logger.debug("Testing fan...")
         if not tests:
-            self.logger.info("No tests defined")
+            self.logger.debug("No tests defined")
             return
         for test in tests:
             self._apply_fanspeed(test[0])
