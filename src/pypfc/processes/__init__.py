@@ -162,7 +162,7 @@ class FanCtrl(mp.Process):
             self.logger.warning("No config file found!")
         return temp_fanspeed_map
 
-    def _run_fan_test(self, tests: Optional[list[tuple[int, float]]] = None) -> None:
+    def _run_fan_test(self, tests: list[tuple[int, float]] | None = None) -> None:
         self.logger.debug("Testing fan...")
         if not tests:
             self.logger.debug("No tests defined")
