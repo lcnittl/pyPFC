@@ -58,7 +58,7 @@ def setup_root_logger() -> logging.Logger:
     file_handler = logging.handlers.RotatingFileHandler(
         filename=log_file,
         mode="a",
-        maxBytes=2 * 1024 ** 2,
+        maxBytes=2 * 1024**2,
         backupCount=9,
         encoding="utf-8",
     )
